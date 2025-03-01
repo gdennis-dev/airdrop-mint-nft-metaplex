@@ -15,7 +15,7 @@ const Header = (props: Props) => {
   return (
     <header className="sticky top-0 z-10 flex justify-between w-full gap-8 px-4 py-10 bg-background font-monsterr">
       <div className="flex items-center justify-between lg:w-full">
-        <Image src={Logo} alt="PRNT" width={50} height={50} />
+        <Image src={Logo} alt="PRNT" width={200} height={100} />
 
         <div className="flex items-center justify-center gap-4">
           <nav className="hidden gap-4 lg:flex">
@@ -23,19 +23,19 @@ const Header = (props: Props) => {
               href="/"
               className="duration-500 cursor-pointer delay-600 animate-in fade-in zoom-in hover:text-tealClr"
             >
-              Home
+              ホーム
             </Link>
             <Link
               href="/mint-NFT"
               className="duration-500 cursor-pointer delay-600 animate-in fade-in zoom-in hover:text-tealClr"
             >
-              Mint NFT
+              NFT発行
             </Link>
             <Link
               href="/airdrop"
               className="duration-500 cursor-pointer delay-600 animate-in fade-in zoom-in hover:text-tealClr"
             >
-              Airdrop
+              エアドロップ
             </Link>
           </nav>
           <WalletMultiButton />
@@ -55,7 +55,7 @@ const Header = (props: Props) => {
                   href="/"
                 >
                   <Home size={28} />
-                  <div className="text-[0.8em] ">Home</div>
+                  <div className="text-[0.8em] ">ホーム</div>
                 </Link>
                 <Link
                   onClick={() => setShowSidebar(false)}

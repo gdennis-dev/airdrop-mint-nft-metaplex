@@ -3,8 +3,8 @@
 import React, { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useWallet } from "@solana/wallet-adapter-react"
-import { Metaplex, walletAdapterIdentity, MetaplexFile, toMetaplexFileFromBrowser } from '@metaplex-foundation/js';
-import { Connection } from "@solana/web3.js"
+import { Metaplex, TransactionBuilder, walletAdapterIdentity } from '@metaplex-foundation/js';
+import { Connection, SystemProgram, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js"
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,7 @@ function NFTCreator() {
   const [nftNumber, setNftNumber] = useState<number | "">("");
   const [description, setDescription] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [attributes, setAttributes] = useState("");
+  const [attributes, setAttributes] = useState([{ trait_type: "", value: "" }]);
   const [isLoading, setIsLoading] = useState(false)
 
   const { showToast } = useToast()
@@ -30,12 +30,29 @@ function NFTCreator() {
     }
   };
 
-  const uploadImageToPinata = async (imageFile: File): Promise<string> => {
+  const handleAttributesChange = (index: number, field: "trait_type" | "value", value: string) => {
+    const newAttributes = [...attributes];
+    newAttributes[index] = { ...newAttributes[index], [field]: value };
+    setAttributes(newAttributes);
+  };
+
+  const addAttribute = (e: React.FormEvent) => {
+    e.preventDefault();
+    setAttributes([...attributes, { trait_type: "", value: "" }]);
+  };
+
+  const removeAttribute = (index: number) => {
+    if (attributes.length > 1) {
+      setAttributes(attributes.filter((_, i) => i !== index));
+    }
+  };
+
+  const uploadImageToPinata = async (imageFile: File, description: string, attributes: { trait_type: string; value: string }[]): Promise<string> => {
     const formData = new FormData();
     formData.append('file', imageFile);
 
     const pinataMetadata = JSON.stringify({
-      name: imageFile.name,
+      name: nftName,
     });
     formData.append('pinataMetadata', pinataMetadata);
 
@@ -45,19 +62,42 @@ function NFTCreator() {
     formData.append('pinataOptions', pinataOptions);
 
     try {
-      const res = await axios.post("https://api.pinata.cloud/pinning/pinFileToIPFS", formData, {
+      const imageRes = await axios.post("https://api.pinata.cloud/pinning/pinFileToIPFS", formData, {
         maxBodyLength: Infinity,
         headers: {
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${process.env.NEXT_PUBLIC_JWT}`,
         },
       });
-      return `https://gateway.pinata.cloud/ipfs/${res.data.IpfsHash}`;
+      const imageUrl = `https://gateway.pinata.cloud/ipfs/${imageRes.data.IpfsHash}`;
+
+      const metadata = {
+        name: imageFile.name,
+        description,
+        image: imageUrl,
+        attributes,
+      };
+
+      const metadataRes = await axios.post(
+        "https://api.pinata.cloud/pinning/pinJSONToIPFS",
+        metadata,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_JWT}`,
+          },
+        }
+      );
+
+      // Return Metadata IPFS URL
+      return `https://gateway.pinata.cloud/ipfs/${metadataRes.data.IpfsHash}`;
+
     } catch (error) {
       console.error('Error uploading to Pinata:', error);
       throw error;
     }
   };
+
 
   const mintNFT = async () => {
     if (!wallet.connected || !imageFile) {
@@ -70,22 +110,39 @@ function NFTCreator() {
     try {
       const connection = new Connection(`https://solana-devnet.rpc.extrnode.com/${process.env.NEXT_PUBLIC_EXTRNODE_API}`)
       const metaplex = Metaplex.make(connection).use(walletAdapterIdentity(wallet))
-      const file: MetaplexFile = await toMetaplexFileFromBrowser(imageFile)
-      console.log(file)
-      // Upload the image
-      const imageUri = await uploadImageToPinata(imageFile);
+      const payer = wallet.publicKey;
 
+      const balance = await connection.getBalance(payer!);
+      const requiredLamports = 0.001 * LAMPORTS_PER_SOL; // Convert 0.001 SOL to lamports
+      if (balance < requiredLamports) {
+        showToast("Insufficient balance! Need at least 0.0001 SOL.", "error");
+        throw new Error("Insufficient SOL balance.");
+      }
+
+      // Upload the image
+      const imageUri = await uploadImageToPinata(imageFile, description, attributes);
       // Create the NFT
-      const { nft } = await metaplex.nfts().create({
+      const nftBuilder = await metaplex.nfts().builders().create({
         name: nftName,
         uri: imageUri,
         symbol: nftSymbol,
         sellerFeeBasisPoints: 500,
-        isCollection: false,
+        updateAuthority: metaplex.identity(),
         mintAuthority: metaplex.identity(),
-      }, { commitment: "finalized" })
+      })
 
-      showToast(`Your NFT has been minted with address: ${nft.address.toString()}`, "success")
+      const solTransfer = SystemProgram.transfer({
+        fromPubkey: payer!,
+        toPubkey: new PublicKey(`${process.env.NEXT_PUBLIC_ADMIN_WALLET}`),
+        lamports: requiredLamports,
+      });
+
+      const transactionBuilder = TransactionBuilder.make()
+        .add(nftBuilder) // NFT Minting
+        .add({ instruction: solTransfer, signers: [metaplex.identity()] });
+      const { response } = await transactionBuilder.sendAndConfirm(metaplex);
+      showToast(`Your NFT has been minted with address: ${response.signature}`, "success")
+
     } catch (error) {
       console.error("Error minting NFT:", error)
       showToast("There was an error minting your NFT. Please try again.", "error")
@@ -106,44 +163,45 @@ function NFTCreator() {
       transition={{ duration: 0.5 }}
       className="container px-4 py-8 mx-auto bg-opacity-50 border rounded-lg bg-slate-800 backdrop-blur-sm border-teal-400/20"
     >
-      <h1 className="mb-4 text-3xl font-bold text-teal-400">Mint NFT</h1>
+      <h1 className="mb-4 text-3xl font-bold text-teal-400">NFT発行</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <Label htmlFor="nftName">Name</Label>
+          <Label htmlFor="nftName">NFT名</Label>
           <Input
             id="nftName"
             value={nftName}
             onChange={(e) => setNftName(e.target.value)}
-            placeholder="Enter NFT name"
+            placeholder="NFT名を入力してください"
             className="mt-1"
             required
           />
         </div>
         <div>
-          <Label htmlFor="nftSymbol">Symbol</Label>
+          <Label htmlFor="nftSymbol">シンボル</Label>
           <Input
             id="nftSymbol"
             value={nftSymbol}
             onChange={(e) => setNftSymbol(e.target.value)}
-            placeholder="Enter Symbol"
+            placeholder="シンボルを入力してください"
             className="mt-1"
+            maxLength={10}
             required
           />
         </div>
         <div>
-          <Label htmlFor="description">Description</Label>
+          <Label htmlFor="description">説明</Label>
           <Textarea
             id="description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Describe your NFT"
+            placeholder="NFTについて説明してください。"
             className="mt-1"
             required
           />
         </div>
         <div>
-          <Label htmlFor="imageUpload">Image</Label>
+          <Label htmlFor="imageUpload">画像</Label>
           <Input
             id="imageUpload"
             type="file"
@@ -153,7 +211,7 @@ function NFTCreator() {
             required
           />
         </div>
-        <div>
+        {/* <div>
           <Label htmlFor="nftNumber">Number of NFTs</Label>
           <Input
             id="nftNumber"
@@ -163,25 +221,56 @@ function NFTCreator() {
             placeholder="Enter Number"
             className="mt-1 w-40"
           />
-        </div>
+        </div> */}
         <div>
-          <Label htmlFor="attributes">Attributes</Label>
-          <Input
-            id="attributes"
-            value={attributes}
-            onChange={(e) => setAttributes(e.target.value)}
-            placeholder="Enter Attrebutes"
-            className="mt-1"
-          />
+          <Label htmlFor="attributes">属性</Label>
+          {attributes.map((attr, index) => (
+            <div key={index} className="flex gap-2 mb-3">
+              {/* Trait Type Input */}
+              <input
+                type="text"
+                value={attr.trait_type}
+                onChange={(e) => handleAttributesChange(index, "trait_type", e.target.value)}
+                placeholder="特性タイプ"
+                className="w-1/2 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+
+              {/* Value Input */}
+              <input
+                type="text"
+                value={attr.value}
+                onChange={(e) => handleAttributesChange(index, "value", e.target.value)}
+                placeholder="価値"
+                className="w-1/2 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+
+              {/* Remove Button (Only if there's more than one input) */}
+              {attributes.length > 1 && (
+                <button
+                  onClick={() => removeAttribute(index)}
+                  className="px-3 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          ))}
+
+          <Button
+            onClick={addAttribute}
+            className="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 mt-3"
+          >
+            + 属性追加
+          </Button>
         </div>
 
 
-        <Button className="mt-4 bg-teal-400 hover:bg-teal-600" type="submit">
-          {isLoading ? "Minting NFT..." : "Mint NFT"}
+        <Button className="mt-4 bg-teal-400 hover:bg-teal-600" type="submit" disabled={isLoading || !wallet.connected}>
+          {isLoading ? "NFT発行中..." : "NFT発行"}
         </Button>
       </form>
 
-    </motion.div>
+    </motion.div >
   );
 }
 

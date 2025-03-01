@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState, memo } from "react"
-import { Connection, PublicKey, Transaction } from "@solana/web3.js"
+import { Connection, PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL } from "@solana/web3.js"
 import { Metaplex, walletAdapterIdentity } from "@metaplex-foundation/js"
 import { useWallet } from "@solana/wallet-adapter-react"
 import { Button } from "@/components/ui/button"
@@ -41,7 +41,6 @@ const NFTBulkSender = memo(() => {
 
     useEffect(() => {
         const fetchNFTs = async () => {
-            console.log("fetchNFTS")
             if (!wallet.connected || !wallet.publicKey) return
             try {
                 const fetchedNfts = await metaplex.nfts().findAllByOwner({
@@ -108,9 +107,8 @@ const NFTBulkSender = memo(() => {
             for (const { address, count } of recipients) {
                 const recipientPublicKey = new PublicKey(address)
                 const mintPublicKey = new PublicKey(selectedNft.mintAddress);
+                const requiredLamports = 0.001 * LAMPORTS_PER_SOL; // Convert 0.001 SOL to lamports
 
-                // const senderTokenAccount = await getAssociatedTokenAddress(mintPublicKey, wallet.publicKey);
-                // const recipientTokenAccount = await getAssociatedTokenAddress(mintPublicKey, recipientPublicKey);
                 const senderTokenAccount = await getAssociatedTokenAddress(
                     mintPublicKey, wallet.publicKey, false, TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID
                 );
@@ -119,22 +117,17 @@ const NFTBulkSender = memo(() => {
                     mintPublicKey, recipientPublicKey, false, TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID
                 );
 
-                // const transaction = new Transaction().add(
-                //     createTransferInstruction(
-                //     senderTokenAccount,
-                //     recipientTokenAccount,
-                //     wallet.publicKey,
-                //     1 // NFTs are non-fungible, so always transferring 1
-                //     )
-                // );
+                const solTransfer = SystemProgram.transfer({
+                    fromPubkey: wallet.publicKey!,
+                    toPubkey: new PublicKey(`${process.env.NEXT_PUBLIC_ADMIN_WALLET}`),
+                    lamports: requiredLamports,
+                });
 
                 const transaction = new Transaction();
 
-                // ✅ 1. Ensure the recipient's ATA exists
                 try {
                     await getAccount(connection, recipientTokenAccount);
                 } catch (error) {
-                    console.log('Recipient ATA does not exist. Creating one...');
                     transaction.add(
                         createAssociatedTokenAccountInstruction(
                             wallet.publicKey, recipientTokenAccount, recipientPublicKey, mintPublicKey
@@ -142,14 +135,14 @@ const NFTBulkSender = memo(() => {
                     );
                 }
 
-                // ✅ 2. Add transfer instruction
                 transaction.add(
                     createTransferInstruction(
                         senderTokenAccount, recipientTokenAccount, wallet.publicKey, 1
                     )
                 );
 
-                // ✅ 3. Fetch the latest blockhash BEFORE signing
+                transaction.add(solTransfer)
+
                 const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
                 transaction.recentBlockhash = blockhash;
                 transaction.feePayer = wallet.publicKey;
@@ -169,11 +162,11 @@ const NFTBulkSender = memo(() => {
 
     return (
         <div className="container mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">NFT Bulk Sender</h1>
+            <h1 className="text-2xl font-bold mb-4">エアドロップ</h1>
             <div className="space-y-4">
                 <div>
                     <label htmlFor="nftSelect" className="block text-sm font-medium text-gray-700">
-                        Select NFT
+                        NFT選択
                     </label>
                     <select
                         id="nftSelect"
@@ -181,7 +174,7 @@ const NFTBulkSender = memo(() => {
                         onChange={(e) => handleSelectNft(e.target.value)}
                         className="border p-2 rounded w-full"
                     >
-                        <option value="" disabled>Select an NFT</option>
+                        <option value="" disabled>NFTを選択してください</option>
                         {nftInfos.map((nft, index) => (
                             <option key={index} value={nft.mintAddress.toBase58()}>
                                 {nft.name || "Unnamed NFT"}
@@ -191,19 +184,19 @@ const NFTBulkSender = memo(() => {
                 </div>
                 <div>
                     <label htmlFor="recipientInfo" className="block text-sm font-medium text-gray-700">
-                        Recipient Information
+                        受取人情報
                     </label>
                     <Textarea
                         id="recipientInfo"
                         value={recipientInfo}
                         onChange={(e) => setRecipientInfo(e.target.value)}
-                        placeholder="Enter recipient addresses and counts (one per line, format: address, count)"
+                        placeholder="受信者のアドレスとカウントを入力（1行に1つ、フォーマット：アドレス、カウント）"
                         className="mt-1 w-full"
                         rows={5}
                     />
                 </div>
                 <Button onClick={sendNFTs} disabled={isLoading || !wallet.connected}>
-                    {isLoading ? "Sending..." : "Send NFTs"}
+                    {isLoading ? "送信中..." : "NFT送信"}
                 </Button>
             </div>
         </div>
