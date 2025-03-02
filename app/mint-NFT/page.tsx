@@ -93,7 +93,7 @@ function NFTCreator() {
       return `https://gateway.pinata.cloud/ipfs/${metadataRes.data.IpfsHash}`;
 
     } catch (error) {
-      console.error('Error uploading to Pinata:', error);
+      // console.error('Error uploading to Pinata:', error);
       throw error;
     }
   };
@@ -101,7 +101,7 @@ function NFTCreator() {
 
   const mintNFT = async () => {
     if (!wallet.connected || !imageFile) {
-      showToast("Please connect your wallet and upload an image.", "error")
+      showToast("ウォレットを接続し、画像をアップロードしてください。", "error")
       return
     }
 
@@ -115,7 +115,7 @@ function NFTCreator() {
       const balance = await connection.getBalance(payer!);
       const requiredLamports = 0.001 * LAMPORTS_PER_SOL; // Convert 0.001 SOL to lamports
       if (balance < requiredLamports) {
-        showToast("Insufficient balance! Need at least 0.0001 SOL.", "error");
+        showToast("バランス不足！少なくとも0.0001 SOLが必要。", "error");
         throw new Error("Insufficient SOL balance.");
       }
 
@@ -141,11 +141,11 @@ function NFTCreator() {
         .add(nftBuilder) // NFT Minting
         .add({ instruction: solTransfer, signers: [metaplex.identity()] });
       const { response } = await transactionBuilder.sendAndConfirm(metaplex);
-      showToast(`Your NFT has been minted with address: ${response.signature}`, "success")
+      showToast(`NFTに住所が発行されました。: ${response.signature}`, "success")
 
     } catch (error) {
-      console.error("Error minting NFT:", error)
-      showToast("There was an error minting your NFT. Please try again.", "error")
+      // console.error("Error minting NFT:", error)
+      showToast("NFT発行にエラーが発生しました。もう一度やり直してください。", "error")
     } finally {
       setIsLoading(false)
     }
@@ -161,9 +161,9 @@ function NFTCreator() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="container px-4 py-8 mx-auto bg-opacity-50 border rounded-lg bg-slate-800 backdrop-blur-sm border-teal-400/20"
+      className="container px-4 py-8 mx-auto rounded-lg bg-[#fff] backdrop-blur-sm "
     >
-      <h1 className="mb-4 text-3xl font-bold text-teal-400">NFT発行</h1>
+      <h1 className="mb-4 text-3xl font-bold text-black">NFT発行</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
@@ -227,21 +227,21 @@ function NFTCreator() {
           {attributes.map((attr, index) => (
             <div key={index} className="flex gap-2 mb-3">
               {/* Trait Type Input */}
-              <input
+              <Input
                 type="text"
                 value={attr.trait_type}
                 onChange={(e) => handleAttributesChange(index, "trait_type", e.target.value)}
                 placeholder="特性タイプ"
-                className="w-1/2 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-80 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
 
               {/* Value Input */}
-              <input
+              <Input
                 type="text"
                 value={attr.value}
                 onChange={(e) => handleAttributesChange(index, "value", e.target.value)}
                 placeholder="価値"
-                className="w-1/2 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-80 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
 
               {/* Remove Button (Only if there's more than one input) */}
@@ -258,14 +258,14 @@ function NFTCreator() {
 
           <Button
             onClick={addAttribute}
-            className="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 mt-3"
+            className="w-40 px-4 py-2 bg-[#000] text-white rounded hover:bg-[#ccc] mt-3 font-bold"
           >
             + 属性追加
           </Button>
         </div>
 
 
-        <Button className="mt-4 bg-teal-400 hover:bg-teal-600" type="submit" disabled={isLoading || !wallet.connected}>
+        <Button className="mt-4 text-white hover:bg-[#ccc] bg-[#000] font-bold" type="submit" disabled={isLoading || !wallet.connected}>
           {isLoading ? "NFT発行中..." : "NFT発行"}
         </Button>
       </form>

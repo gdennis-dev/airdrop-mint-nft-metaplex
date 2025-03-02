@@ -19,9 +19,9 @@ export const rubik = Rubik({
 });
 
 export const metadata: Metadata = {
-  title: "ンフト",
+  title: "ソラナ",
   description:
-    "プロジェクトを紹介し、トークンを起動し、NFT を作成するためのンフト",
+    "NFTを作成してエアドロップするには",
 };
 
 export default function RootLayout({
@@ -37,7 +37,6 @@ export default function RootLayout({
         <Provider
           attribute="data-theme"
           storageKey="sol-launchpad-theme"
-          defaultTheme="dark"
         >
           <Header />
           {children}

@@ -2,11 +2,11 @@
 import { Logo } from "@images";
 import Image from "next/image";
 import Link from "next/link";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { Home, Info, Menu, Mail, FileText } from "lucide-react";
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
+import { CustomWalletMultiButton } from "./CustomWalletMultiButton";
 
 type Props = {};
 
@@ -21,24 +21,24 @@ const Header = (props: Props) => {
           <nav className="hidden gap-4 lg:flex">
             <Link
               href="/"
-              className="duration-500 cursor-pointer delay-600 animate-in fade-in zoom-in hover:text-tealClr"
+              className="duration-500 cursor-pointer font-semibold delay-600 animate-in fade-in zoom-in hover:text-tealClr"
             >
               ホーム
             </Link>
             <Link
               href="/mint-NFT"
-              className="duration-500 cursor-pointer delay-600 animate-in fade-in zoom-in hover:text-tealClr"
+              className="duration-500 cursor-pointer font-semibold delay-600 animate-in fade-in zoom-in hover:text-tealClr"
             >
               NFT発行
             </Link>
             <Link
               href="/airdrop"
-              className="duration-500 cursor-pointer delay-600 animate-in fade-in zoom-in hover:text-tealClr"
+              className="duration-500 cursor-pointer font-semibold delay-600 animate-in fade-in zoom-in hover:text-tealClr"
             >
               エアドロップ
             </Link>
           </nav>
-          <WalletMultiButton />
+          <CustomWalletMultiButton className="bg-black" />
 
           <Sheet open={showSidebar} onOpenChange={setShowSidebar}>
             <SheetTrigger asChild>

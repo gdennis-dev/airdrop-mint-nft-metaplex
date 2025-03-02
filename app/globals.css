@@ -6,6 +6,7 @@ html,
 body {
   padding: 0;
   margin: 0;
+  font-family: "Yu Gothic", "Meiryo", "MS Gothic", sans-serif !important;
 }
 
 * {
@@ -27,78 +28,140 @@ body {
       #00ffa3,
       #dc1fff
     );
-    --tealClr: #99f6e4;
-    --tealDarkClr: #008080;
+    --tealClr: #008080; /* Darker teal for contrast */
+    --tealDarkClr: #025959; /* Even darker teal for hover states */
 
-    --background: 0 0% 100%;
-    --foreground: 224 71.4% 4.1%;
+    --background: 0 0% 100%; /* Light background */
+    --foreground: 210 20% 20%; /* Darker text for readability */
 
-    --card: 0 0% 100%;
-    --card-foreground: 224 71.4% 4.1%;
+    --card: 0 0% 98%; /* Lighter card backgrounds */
+    --card-foreground: 210 20% 20%; /* Text on cards */
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 224 71.4% 4.1%;
+    --popover: 0 0% 98%; /* Light popovers */
+    --popover-foreground: 210 20% 20%; /* Text on popovers */
 
-    --primary: 220.9 39.3% 11%;
-    --primary-foreground: 210 20% 98%;
+    --primary: 220.9 39.3% 30%; /* Less bright primary */
+    --primary-foreground: 210 20% 20%; /* Text on primary */
 
-    --secondary: 220 14.3% 95.9%;
-    --secondary-foreground: 220.9 39.3% 11%;
+    --secondary: 220 14.3% 98%; /* Light secondary backgrounds */
+    --secondary-foreground: 220.9 39.3% 30%; /* Text on secondary */
 
-    --muted: 220 14.3% 95.9%;
-    --muted-foreground: 220 8.9% 46.1%;
+    --muted: 220 14.3% 98%; /* Light muted */
+    --muted-foreground: 220 8.9% 46.1%; /* Muted text */
 
-    --accent: 220 14.3% 95.9%;
-    --accent-foreground: 220.9 39.3% 11%;
+    --accent: 220 14.3% 95.9%; /* Light accent */
+    --accent-foreground: 220.9 39.3% 30%; /* Text on accent */
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 20% 98%;
+    --destructive: 0 84.2% 70%; /* Less intense destructive */
+    --destructive-foreground: 210 20% 98%; /* Text on destructive */
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 224 71.4% 4.1%;
+    --border: 220 13% 88%; /* Lighter borders */
+    --input: 220 13% 95%; /* Lighter inputs */
+    --ring: 224 71.4% 10%; /* Less intense focus ring */
 
     --radius: 0.5rem;
   }
-
-  [data-theme="dark"] {
-    --background: 224 71.4% 4.1%;
-    --foreground: 210 20% 98%;
-
-    --card: 224 71.4% 4.1%;
-    --card-foreground: 210 20% 98%;
-
-    --popover: 224 71.4% 4.1%;
-    --popover-foreground: 210 20% 98%;
-
-    --primary: 210 20% 98%;
-    --primary-foreground: 220.9 39.3% 11%;
-
-    --secondary: 215 27.9% 16.9%;
-    --secondary-foreground: 210 20% 98%;
-
-    --muted: 215 27.9% 16.9%;
-    --muted-foreground: 217.9 10.6% 64.9%;
-
-    --accent: 215 27.9% 16.9%;
-    --accent-foreground: 210 20% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 20% 98%;
-
-    --border: 215 27.9% 16.9%;
-    --input: 215 27.9% 16.9%;
-    --ring: 216 12.2% 83.9%;
-  }
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+.wallet-adapter-button {
+  background-color: white !important; /* White background */
+  color: black !important; /* Black text */
+  border: 2px solid black !important; /* Black border */
+}
+
+.wallet-adapter-button:hover {
+  background-color: #f0f0f0 !important; /* Light gray on hover */
+}
+
+.wallet-adapter-dropdown-list {
+  background-color: white !important; /* Ensure dropdown is also white */
+  border: 1px solid black !important;
+}
+
+.wallet-adapter-dropdown-list-item {
+  color: black !important; /* Black text */
+}
+
+.wallet-adapter-dropdown-list-item:hover {
+  background-color: #f0f0f0 !important; /* Light gray hover effect */
+}
+
+.wallet-adapter-modal-wrapper {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.wallet-adapter-modal-button-close {
+  background: none;
+}
+
+.wallet-adapter-modal-button-close svg {
+  width: 20px;
+  height: 20px;
+}
+
+.wallet-adapter-modal-list-more svg {
+  transition: all 0.1sease;
+  fill: #000;
+  margin-left: 0.5rem;
+}
+
+.wallet-adapter-modal-title {
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+  color: black;
+}
+
+.wallet-adapter-modal-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  color: #000;
+}
+
+.wallet-adapter-button {
+  width: 100%;
+  padding: 12px;
+  margin: 5px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fff;
+  border: 1px solid #000;
+  border-radius: 8px;
+  cursor: pointer;
+  color: black;
+}
+
+.wallet-adapter-button:hover {
+  background-color: #e0e0e0;
+}
+
+.wallet-adapter-button-start-icon img {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+}
+
+.wallet-adapter-modal-list-more {
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #000;
+  margin-top: 20px;
+}
+
+.wallet-adapter-modal-list-more:hover {
+  background-color: #e0e0e0;
 }
 
 /* Sidebar Panel */
@@ -115,16 +178,24 @@ body {
 }
 
 .wallet-adapter-button:not([disabled]):hover {
-  background-color: var(--tealDarkClr);
-  border: 4px solid var(--tealDarkClr);
-  border-radius: 0.5rem;
+  background-color: var(--tealClr);
+  border: 4px solid var(--tealClr);
+}
+
+@layer base {
+  * {
+    @apply border-gray-300;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }
 
 .custom-gradient-text {
   background: var(--solana-gradient);
   background-clip: text;
   -webkit-background-clip: text;
-  color: transparent;
+  color: black;
   background-size: 200%;
   font-weight: bolder;
   animation: gradientPan 5s linear infinite;

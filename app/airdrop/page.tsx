@@ -1,13 +1,15 @@
 "use client"
 
 import { useEffect, useState, memo } from "react"
+import { getAssociatedTokenAddress, createTransferInstruction, TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, getAccount, createAssociatedTokenAccountInstruction } from '@solana/spl-token';
 import { Connection, PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL } from "@solana/web3.js"
 import { Metaplex, walletAdapterIdentity } from "@metaplex-foundation/js"
 import { useWallet } from "@solana/wallet-adapter-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
-import { getAssociatedTokenAddress, createTransferInstruction, TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, getAccount, createAssociatedTokenAccountInstruction } from '@solana/spl-token';
+import { Label } from "@/components/ui/label"
+import { motion } from "framer-motion";
 
 interface RecipientInfo {
     address: string
@@ -48,7 +50,7 @@ const NFTBulkSender = memo(() => {
                 })
                 setNftInfos(fetchedNfts)
             } catch (error) {
-                console.error("Error fetching NFTs:", error)
+                // console.error("Error fetching NFTs:", error)
             }
         }
         fetchNFTs()
@@ -82,22 +84,22 @@ const NFTBulkSender = memo(() => {
             // Confirm the transaction
             await connection.confirmTransaction(signature, 'confirmed');
 
-            console.log('Transaction successful! Signature:', signature);
+            // console.log('Transaction successful! Signature:', signature);
             return signature;
         } catch (error) {
-            console.error('Transaction failed:', error);
+            // console.error('Transaction failed:', error);
             throw error;
         }
     };
 
     const sendNFTs = async () => {
         if (!wallet.connected || !wallet.publicKey) {
-            showToast("Please connect your wallet", "error")
+            showToast("ウォレットを接続してください。", "error")
             return
         }
 
         if (!selectedNft || !recipientInfo) {
-            showToast("Please select an NFT and enter recipient information", "error")
+            showToast("NFTを選択し、受取人情報を入力してください。", "error")
             return
         }
 
@@ -148,31 +150,36 @@ const NFTBulkSender = memo(() => {
                 transaction.feePayer = wallet.publicKey;
 
                 const signature = await sendSignedTransaction(connection, transaction, wallet);
-                console.log(`Transaction successful! Signature: ${signature}`);
+                // console.log(`Transaction successful! Signature: ${signature}`);
 
-                showToast("Success")
+                showToast("成功", "success")
             }
         } catch (error) {
-            console.error("❌ Transfer failed:", error)
-            showToast("Transfer failed, check console for details", "error")
+            // console.error("❌ Transfer failed:", error)
+            showToast("転送に失敗しました。", "error")
         } finally {
             setIsLoading(false)
         }
     }
 
     return (
-        <div className="container mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">エアドロップ</h1>
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="container px-4 py-8 mx-auto bg-[#fff] backdrop-blur-sm "
+        >
+            <h1 className="mb-4 text-3xl font-bold text-black">エアドロップ</h1>
             <div className="space-y-4">
                 <div>
-                    <label htmlFor="nftSelect" className="block text-sm font-medium text-gray-700">
+                    <Label htmlFor="nftSelect">
                         NFT選択
-                    </label>
+                    </Label>
                     <select
                         id="nftSelect"
                         value={selectedNft?.mintAddress.toBase58() || ""}
                         onChange={(e) => handleSelectNft(e.target.value)}
-                        className="border p-2 rounded w-full"
+                        className="border p-2 rounded w-full bg-[#fff] border-[#000]"
                     >
                         <option value="" disabled>NFTを選択してください</option>
                         {nftInfos.map((nft, index) => (
@@ -183,9 +190,9 @@ const NFTBulkSender = memo(() => {
                     </select>
                 </div>
                 <div>
-                    <label htmlFor="recipientInfo" className="block text-sm font-medium text-gray-700">
+                    <Label htmlFor="recipientInfo">
                         受取人情報
-                    </label>
+                    </Label>
                     <Textarea
                         id="recipientInfo"
                         value={recipientInfo}
@@ -195,11 +202,11 @@ const NFTBulkSender = memo(() => {
                         rows={5}
                     />
                 </div>
-                <Button onClick={sendNFTs} disabled={isLoading || !wallet.connected}>
+                <Button className="mt-4 text-white hover:bg-[#ccc] bg-[#000] font-bold" onClick={sendNFTs} disabled={isLoading || !wallet.connected}>
                     {isLoading ? "送信中..." : "NFT送信"}
                 </Button>
             </div>
-        </div>
+        </motion.div >
     )
 }
 )
