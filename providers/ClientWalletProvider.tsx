@@ -27,7 +27,7 @@ const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
   );
 
   const onError = useCallback((error: WalletError) => {
-    showToast(error.message, "error")
+    showToast("ウォレットがありません。インストールし直してください。", "error")
     console.error("walletProviderError", error);
   }, []);
 
