@@ -13,7 +13,7 @@ type Props = {};
 const Header = (props: Props) => {
   const [showSidebar, setShowSidebar] = useState<boolean>(false);
   return (
-    <header className="sticky top-0 z-10 flex justify-between w-full gap-8 px-4 py-10 bg-background font-monsterr">
+    <header className="sticky top-0 z-10 flex justify-between w-full gap-8 px-4 py-10 bg-background font-monsterr here">
       <div className="flex items-center justify-between lg:w-full">
         <Image src={Logo} alt="PRNT" width={200} height={100} />
 
