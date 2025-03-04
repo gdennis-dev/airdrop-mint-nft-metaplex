@@ -24,7 +24,7 @@ const NFTBulkSender = memo(() => {
 
     const { showToast } = useToast()
     const wallet = useWallet()
-    const connection = new Connection(`https://solana-devnet.rpc.extrnode.com/${process.env.NEXT_PUBLIC_EXTRNODE_API}`, 'confirmed')
+    const connection = new Connection(`https://solana-mainnet.rpc.extrnode.com/${process.env.NEXT_PUBLIC_EXTRNODE_API}`, 'confirmed')
     const metaplex = Metaplex.make(connection).use(walletAdapterIdentity(wallet))
 
     const parseRecipientInfo = (info: string): RecipientInfo[] => {

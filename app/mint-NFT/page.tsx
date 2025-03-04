@@ -108,7 +108,7 @@ function NFTCreator() {
     setIsLoading(true)
 
     try {
-      const connection = new Connection(`https://solana-devnet.rpc.extrnode.com/${process.env.NEXT_PUBLIC_EXTRNODE_API}`)
+      const connection = new Connection(`https://solana-mainnet.rpc.extrnode.com/${process.env.NEXT_PUBLIC_EXTRNODE_API}`)
       const metaplex = Metaplex.make(connection).use(walletAdapterIdentity(wallet))
       const payer = wallet.publicKey;
 
