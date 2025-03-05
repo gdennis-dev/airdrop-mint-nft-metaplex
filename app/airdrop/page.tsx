@@ -155,7 +155,6 @@ const NFTBulkSender = memo(() => {
                 showToast("成功", "success")
             }
         } catch (error) {
-            // console.error("❌ Transfer failed:", error)
             showToast("転送に失敗しました。", "error")
         } finally {
             setIsLoading(false)
@@ -197,7 +196,7 @@ const NFTBulkSender = memo(() => {
                         id="recipientInfo"
                         value={recipientInfo}
                         onChange={(e) => setRecipientInfo(e.target.value)}
-                        placeholder="受信者のアドレスとカウントを入力（1行に1つ、フォーマット：アドレス、カウント）"
+                        placeholder="受取人のSolアドレスと、送る数量を入力（1行ごとにアドレス, 数量で記載してください）"
                         className="mt-1 w-full"
                         rows={5}
                     />

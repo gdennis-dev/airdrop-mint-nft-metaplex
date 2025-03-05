@@ -225,7 +225,7 @@ function NFTCreator() {
         <div>
           <Label htmlFor="attributes">属性</Label>
           {attributes.map((attr, index) => (
-            <div key={index} className="flex gap-2 mb-3">
+            <div key={index} className="flex gap-2 mb-3 flex-wrap">
               {/* Trait Type Input */}
               <Input
                 type="text"
