@@ -1,6 +1,6 @@
-"use client"; 
+"use client";
 import Link from "next/link";
-import { Menu} from "lucide-react";
+import { Menu } from "lucide-react";
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
@@ -12,9 +12,11 @@ const Header = (props: Props) => {
   const [showSidebar, setShowSidebar] = useState<boolean>(false);
   return (
     <header className="w-full gap-8 px-4 py-10 font-monsterr here">
-      <div className=" sticky top-0 z-10 flex items-center justify-between lg:w-full">         
-        <Link href="/"><img src='./../logo.png' alt="ソラナ" className="logo"/></Link>
-        <div className="flex items-center justify-center gap-4">
+      <div className=" sticky top-0 z-10 flex items-center justify-between lg:w-full">
+        <Link href="/">
+          <img src="./../logo.png" alt="ソラナ" className="logo ml-6" />
+        </Link>
+        <div className="flex items-center justify-center gap-4 mr-6">
           <nav className="hidden gap-4 lg:flex">
             <Link
               href="/"
@@ -50,23 +52,23 @@ const Header = (props: Props) => {
                   onClick={() => setShowSidebar(false)}
                   className="SidebarLink"
                   href="/"
-                > 
+                >
                   <div className="text-[0.8em] ">ホーム</div>
                 </Link>
                 <Link
                   onClick={() => setShowSidebar(false)}
                   className="SidebarLink"
                   href="/mint"
-                > 
+                >
                   <div className="text-[0.8em]">NFT発行</div>
                 </Link>
                 <Link
                   onClick={() => setShowSidebar(false)}
                   className="SidebarLink"
                   href="/airdrop"
-                > 
+                >
                   <div className="text-[0.8em]">エアドロップ</div>
-                </Link> 
+                </Link>
               </nav>
             </SheetContent>
           </Sheet>
