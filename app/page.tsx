@@ -1,10 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Link from "next/link";
 
 export default function Home() {
-
   return (
     <motion.main
       initial={{ opacity: 0 }}
@@ -25,17 +23,19 @@ export default function Home() {
             <ul className="list-disc pl-5 space-y-2">
               <li>Solanaチェーン対応：高速・低コストでNFTを発行</li>
               <li>Phantomウォレット接続：シームレスな操作でNFTを管理</li>
-              <li>一括エアドロップ：発行したNFTを指定した複数のアドレスに瞬時に送付</li>
+              <li>
+                一括エアドロップ：発行したNFTを指定した複数のアドレスに瞬時に送付
+              </li>
             </ul>
             <br />
             <p>
-              Web3時代のNFT発行・配布をより簡単に、効率的に。<br />
+              Web3時代のNFT発行・配布をより簡単に、効率的に。
+              <br />
               今すぐPhantomウォレットを接続して、Solanaのエコシステムに参加しましょう！
             </p>
           </div>
         </div>
       </div>
-
     </motion.main>
   );
 }
