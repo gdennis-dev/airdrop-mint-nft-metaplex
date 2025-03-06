@@ -203,7 +203,7 @@ export default function NFTCreator() {
       transition={{ duration: 0.5 }}
       className="container px-4 pb-8 mx-auto rounded-lg bg-[#fff] backdrop-blur-sm "
     >
-      <h1 className="mb-4 text-3xl font-bold text-black">NFT発行</h1>
+      <h1 className="mb-4 text-xl sm:text-2xl font-bold text-black">NFT発行</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -11,10 +12,7 @@ export default function Home() {
     >
       <div className="w-full sm:w-[80%] max-w-[940px] mx-auto pt-4 pb-12 sm:pt-24 sm:pb-24 px-4">
         <div className="flex flex-col gap-8 items-center justify-center bg-gradient-to-br p-4">
-          <div className="w-full font-semibold">
-            <h2 className="font-semibold text-lg sm:text-2xl mb-4">
-              「ソラナ」はSolanaチェーン上でNFTの発行・配布が可能なプラットフォーム！
-            </h2>
+          <div className="w-full font-semibold">            
             <p>
               当サイトでは、Solanaチェーン上で簡単にNFTを発行し、特定のウォレットアドレスに一斉送付することができます。
             </p>
@@ -33,6 +31,20 @@ export default function Home() {
               <br />
               今すぐPhantomウォレットを接続して、Solanaのエコシステムに参加しましょう！
             </p>
+            <div className="flex justify-center align-center gap-4 sm:gap-20 flex-wrap mt-10 sm:mt-20">
+            <Link
+              href="/mint"
+              className="w-fit min-w-[120px] sm:min-w-[140px] border border-solid border-black rounded-lg py-1.5 px-0 flex items-center justify-center h-[42px]"
+            >
+              NFT発行
+            </Link>
+            <Link
+              href="/airdrop"
+              className="w-fit min-w-[120px] sm:min-w-[140px] border border-solid border-black rounded-lg py-1.5 px-0 flex items-center justify-center h-[42px]"
+            >
+              エアドロップ
+            </Link>
+            </div>
           </div>
         </div>
       </div>

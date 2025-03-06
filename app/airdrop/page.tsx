@@ -262,7 +262,7 @@ export default function NFTBulkSender() {
       transition={{ duration: 0.5 }}
       className="container px-4 py-8 mx-auto bg-[#fff] backdrop-blur-sm "
     >
-      <h1 className="mb-4 text-3xl font-bold text-black">エアドロップ</h1>
+      <h1 className="mb-4 text-xl sm:text-2xl font-bold text-black">エアドロップ</h1>
       <div className="space-y-4">
         <div>
           <Label htmlFor="nftSelect">NFT選択</Label>
