@@ -21,7 +21,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import axios from "axios";
 
-function NFTCreator() {
+export default function NFTCreator() {
   const [nftName, setNftName] = useState("");
   const [nftSymbol, setNftSymbol] = useState("");
   const [nftNumber, setNftNumber] = useState<number | "">("");
@@ -321,7 +321,3 @@ function NFTCreator() {
     </motion.div>
   );
 }
-
-NFTCreator.displayName = "NFTCreator";
-
-export default NFTCreator;

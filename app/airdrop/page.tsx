@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, memo } from "react";
+import { useEffect, useState } from "react";
 import {
   getAssociatedTokenAddress,
   createTransferInstruction,
@@ -35,7 +35,7 @@ interface ProcessedData {
   numbers: number;
 }
 
-const NFTBulkSender = memo(() => {
+export default function NFTBulkSender() {
   const [recipientInfo, setRecipientInfo] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [nftInfos, setNftInfos] = useState<any[]>([]);
@@ -303,6 +303,4 @@ const NFTBulkSender = memo(() => {
       </div>
     </motion.div>
   );
-});
-
-export default NFTBulkSender;
+}
