@@ -20,6 +20,11 @@ export const rubik = Rubik({
 
 export const metadata: Metadata = {
   title: "ソラナ",
+  icons: {
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
+  },
   description:
     "NFTを作成してエアドロップするには",
 };
@@ -30,7 +35,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="ja" suppressHydrationWarning>    
       <body
         className={`${montserrat.variable} ${rubik.variable} font-rubik relative`}
       >

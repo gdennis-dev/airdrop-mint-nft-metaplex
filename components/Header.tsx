@@ -11,12 +11,12 @@ type Props = {};
 const Header = (props: Props) => {
   const [showSidebar, setShowSidebar] = useState<boolean>(false);
   return (
-    <header className="w-full gap-8 px-4 py-10 font-monsterr here">
+    <header className="w-full gap-8 px-4 py-4 sm:py-10 font-monsterr here">
       <div className=" sticky top-0 z-10 flex items-center justify-between lg:w-full">
         <Link href="/">
-          <img src="./../logo.png" alt="ソラナ" className="logo ml-6" />
+          <img src="./../logo.png" alt="ソラナ" className="logo sm:ml-6" />
         </Link>
-        <div className="flex items-center justify-center gap-4 mr-6">
+        <div className="flex items-center justify-center flex-grow-0 gap-4 sm:mr-6">
           <nav className="hidden gap-4 lg:flex">
             <Link
               href="/"
