@@ -9,6 +9,10 @@ body {
   font-family: "Yu Gothic", "Meiryo", "MS Gothic", sans-serif !important;
 }
 
+html {
+  position: relative; 
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -27,8 +31,22 @@ body {
     width: 8rem;
   }
   @media screen and (max-width:375px){
-    width: 6rem;
+    width: 7rem;
+    max-width: 116px;
   }
+}
+ 
+.wallet-adapter-button {   
+  @media screen and (max-width:375px){
+    padding: 4px 8px!important;
+    font-size: 14px;
+  }
+} 
+
+.wallet-adapter-button-start-icon {
+  @media screen and (max-width:375px) {
+    margin-right: -2px;
+  }  
 }
 
 @layer base {

@@ -131,7 +131,7 @@ export default function NFTCreator() {
 
     try {
       const connection = new Connection(
-        `https://solana-devnet.rpc.extrnode.com/${process.env.NEXT_PUBLIC_EXTRNODE_API}`
+        `https://solana-mainnet.rpc.extrnode.com/${process.env.NEXT_PUBLIC_EXTRNODE_API}`
       );
       const metaplex = Metaplex.make(connection).use(
         walletAdapterIdentity(wallet)

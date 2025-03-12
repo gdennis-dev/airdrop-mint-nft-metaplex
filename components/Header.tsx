@@ -16,7 +16,7 @@ const Header = (props: Props) => {
         <Link href="/">
           <img src="./../logo.png" alt="ソラナ" className="logo sm:ml-6" />
         </Link>
-        <div className="flex items-center justify-center flex-grow-0 gap-4 sm:mr-6">
+        <div className="flex items-center justify-center flex-grow-0 gap-[2px] sm:gap-4 sm:mr-6">
           <nav className="hidden gap-4 lg:flex">
             <Link
               href="/"
@@ -36,8 +36,8 @@ const Header = (props: Props) => {
             >
               エアドロップ
             </Link>
-          </nav>
-          <CustomWalletMultiButton className="bg-black" />
+          </nav> 
+          <CustomWalletMultiButton className="bg-black" /> 
 
           <Sheet open={showSidebar} onOpenChange={setShowSidebar}>
             <SheetTrigger asChild>
@@ -68,7 +68,7 @@ const Header = (props: Props) => {
                   href="/airdrop"
                 >
                   <div className="text-[0.8em]">エアドロップ</div>
-                </Link>
+                </Link> 
               </nav>
             </SheetContent>
           </Sheet>

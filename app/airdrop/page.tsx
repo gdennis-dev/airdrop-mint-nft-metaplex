@@ -46,7 +46,7 @@ export default function NFTBulkSender() {
   const { showToast } = useToast();
   const wallet = useWallet();
   const connection = new Connection(
-    `https://solana-devnet.rpc.extrnode.com/${process.env.NEXT_PUBLIC_EXTRNODE_API}`,
+    `https://solana-mainnet.rpc.extrnode.com/${process.env.NEXT_PUBLIC_EXTRNODE_API}`,
     "confirmed"
   );
   const metaplex = Metaplex.make(connection).use(walletAdapterIdentity(wallet));
