@@ -3,23 +3,19 @@
 import React, { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useWallet } from "@solana/wallet-adapter-react";
-import {
-  Metaplex,
-  TransactionBuilder,
-  walletAdapterIdentity,
-} from "@metaplex-foundation/js";
-import {
-  Connection,
-  SystemProgram,
-  LAMPORTS_PER_SOL,
-  PublicKey,
-} from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import axios from "axios";
+
+import { generateSigner, none, publicKey, sol } from "@metaplex-foundation/umi";
+import { createTree, mintV1 } from "@metaplex-foundation/mpl-bubblegum";
+import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
+import { transferSol } from "@metaplex-foundation/mpl-toolbox";
+import { walletAdapterIdentity } from "@metaplex-foundation/umi-signer-wallet-adapters";
 
 export default function NFTCreator() {
   const [nftName, setNftName] = useState("");
@@ -126,69 +122,59 @@ export default function NFTCreator() {
       );
       return;
     }
-
     setIsLoading(true);
 
+    const umi = createUmi(
+      `https://devnet.helius-rpc.com/?api-key=${process.env.NEXT_PUBLIC_HELIUS_API}`
+    );
+    umi.use(walletAdapterIdentity(wallet));
+
+    const adminWallet = new PublicKey(
+      `${process.env.NEXT_PUBLIC_ADMIN_WALLET}`
+    );
     try {
-      const connection = new Connection(
-        `https://solana-mainnet.rpc.extrnode.com/${process.env.NEXT_PUBLIC_EXTRNODE_API}`
-      );
-      const metaplex = Metaplex.make(connection).use(
-        walletAdapterIdentity(wallet)
-      );
-      const payer = wallet.publicKey;
-
-      const balance = await connection.getBalance(payer!);
-      const requiredLamports = 0.001 * LAMPORTS_PER_SOL; // Convert 0.001 SOL to lamports
-      if (balance < requiredLamports) {
-        showToast("バランス不足！少なくとも0.0001 SOLが必要。", "error");
-        throw new Error("Insufficient SOL balance.");
-      }
-
-      // Upload the image
-      const imageUri = await uploadImageToPinata(
-        imageFile,
-        description,
-        attributes
-      );
-      // Create the NFT
-      for (let i = 1; i <= Number(nftNumber); i++) {
-        const nftBuilder = await metaplex
-          .nfts()
-          .builders()
-          .create({
-            name: `${nftName} #${i}`,
-            uri: imageUri,
-            symbol: nftSymbol,
-            sellerFeeBasisPoints: 500,
-            updateAuthority: metaplex.identity(),
-            mintAuthority: metaplex.identity(),
-          });
-
-        const solTransfer = SystemProgram.transfer({
-          fromPubkey: payer!,
-          toPubkey: new PublicKey(`${process.env.NEXT_PUBLIC_ADMIN_WALLET}`),
-          lamports: requiredLamports,
-        });
-
-        const transactionBuilder = TransactionBuilder.make()
-          .add(nftBuilder) // NFT Minting
-          .add({ instruction: solTransfer, signers: [metaplex.identity()] });
-        const { response } = await transactionBuilder.sendAndConfirm(metaplex);
-        showToast(
-          `NFTに住所が発行されました。: ${response.signature}`,
-          "success"
-        );
-      }
+      await transferSol(umi, {
+        destination: publicKey(adminWallet),
+        amount: sol(0.001),
+      }).sendAndConfirm(umi);
     } catch (error) {
-      // console.error("Error minting NFT:", error)
-      showToast(
-        "NFT発行にエラーが発生しました。もう一度やり直してください。",
-        "error"
-      );
-    } finally {
+      showToast("SOLの送金がキャンセルされました。", "error");
       setIsLoading(false);
+      return;
     }
+
+    const merkleTree = generateSigner(umi);
+    const builder = await createTree(umi, {
+      merkleTree,
+      maxDepth: 14,
+      maxBufferSize: 64,
+    });
+    await builder.sendAndConfirm(umi);
+
+    const imageUri = await uploadImageToPinata(
+      imageFile,
+      description,
+      attributes
+    );
+
+    for (let i = 0; i < Number(nftNumber); i++) {
+      await mintV1(umi, {
+        leafOwner: umi.identity.publicKey,
+        merkleTree: merkleTree.publicKey,
+        metadata: {
+          name: nftName,
+          uri: imageUri,
+          sellerFeeBasisPoints: 500,
+          collection: none(),
+          creators: [
+            { address: umi.identity.publicKey, verified: false, share: 100 },
+          ],
+        },
+      }).sendAndConfirm(umi);
+    }
+
+    setIsLoading(false);
+    showToast("NFTの発行が正常に完了しました。", "success");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -212,7 +198,7 @@ export default function NFTCreator() {
             id="nftName"
             value={nftName}
             onChange={(e) => setNftName(e.target.value)}
-            placeholder="NFT名を入力してください"
+            placeholder="NFT名を入力してください。"
             className="mt-1"
             required
           />
@@ -223,7 +209,7 @@ export default function NFTCreator() {
             id="nftSymbol"
             value={nftSymbol}
             onChange={(e) => setNftSymbol(e.target.value)}
-            placeholder="シンボルを入力してください"
+            placeholder="シンボルを入力してください。"
             className="mt-1"
             maxLength={10}
             required
@@ -252,7 +238,7 @@ export default function NFTCreator() {
           />
         </div>
         <div>
-          <Label htmlFor="nftNumber">Number of NFTs</Label>
+          <Label htmlFor="nftNumber">NFT数</Label>
           <Input
             id="nftNumber"
             type="number"
@@ -260,7 +246,7 @@ export default function NFTCreator() {
             onChange={(e) =>
               setNftNumber(e.target.value ? Number(e.target.value) : "")
             }
-            placeholder="Enter Number"
+            placeholder="NFT数を入力します。"
             className="mt-1 w-40"
           />
         </div>

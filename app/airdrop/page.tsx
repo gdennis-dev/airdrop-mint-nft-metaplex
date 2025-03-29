@@ -1,28 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  getAssociatedTokenAddress,
-  createTransferInstruction,
-  TOKEN_PROGRAM_ID,
-  ASSOCIATED_TOKEN_PROGRAM_ID,
-  getAccount,
-  createAssociatedTokenAccountInstruction,
-} from "@solana/spl-token";
-import {
-  Connection,
-  PublicKey,
-  Transaction,
-  SystemProgram,
-  LAMPORTS_PER_SOL,
-} from "@solana/web3.js";
-import { Metaplex, walletAdapterIdentity } from "@metaplex-foundation/js";
+
 import { useWallet } from "@solana/wallet-adapter-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
+
+import { publicKey } from "@metaplex-foundation/umi";
+import { dasApi } from "@metaplex-foundation/digital-asset-standard-api";
+import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
+import { walletAdapterIdentity } from "@metaplex-foundation/umi-signer-wallet-adapters";
+import {
+  getAssetWithProof,
+  mplBubblegum,
+  transfer,
+} from "@metaplex-foundation/mpl-bubblegum";
 
 interface RecipientInfo {
   address: string;
@@ -42,14 +37,34 @@ export default function NFTBulkSender() {
   const [selectedNfts, setSelectedNfts] = useState<any[]>([]);
   const [selectData, setSelectData] = useState<ProcessedData[]>([]);
   const [selectedData, setSelectedData] = useState<ProcessedData | null>(null);
+  const [refreshCounter, setRefreshCounter] = useState(0);
 
   const { showToast } = useToast();
   const wallet = useWallet();
-  const connection = new Connection(
-    `https://solana-mainnet.rpc.extrnode.com/${process.env.NEXT_PUBLIC_EXTRNODE_API}`,
-    "confirmed"
+  const umi = createUmi(
+    `https://devnet.helius-rpc.com/?api-key=${process.env.NEXT_PUBLIC_HELIUS_API}`
   );
-  const metaplex = Metaplex.make(connection).use(walletAdapterIdentity(wallet));
+  umi.use(walletAdapterIdentity(wallet));
+  umi.use(dasApi());
+  umi.use(mplBubblegum());
+
+  const fetchCNFT = async () => {
+    // Ensure wallet is connected and publicKey is available
+    if (!wallet.publicKey || !wallet.connected) {
+      console.error("Wallet is not connected");
+      showToast("ウォレットを接続してください。", "error");
+      return;
+    }
+    try {
+      const assetsByOwner = await (umi.rpc as any).getAssetsByOwner({
+        owner: umi.identity.publicKey, // Correct public key format
+      });
+      setNftInfos(assetsByOwner.items);
+      setSelectData(countNFTsByURI(assetsByOwner.items));
+    } catch (error) {
+      console.error("Error fetching assets by owner:", error);
+    }
+  };
 
   const parseRecipientInfo = (info: string): RecipientInfo[] => {
     return info
@@ -65,77 +80,17 @@ export default function NFTBulkSender() {
       });
   };
 
-  useEffect(() => {
-    const fetchNFTs = async () => {
-      if (!wallet.connected || !wallet.publicKey) return;
-      try {
-        const fetchedNfts = await metaplex.nfts().findAllByOwner({
-          owner: wallet.publicKey,
-        });
-        setNftInfos(fetchedNfts);
-        setSelectData(countNFTsByURI(fetchedNfts));
-      } catch (error) {
-        // console.error("Error fetching NFTs:", error)
-      }
-    };
-    fetchNFTs();
-  }, [wallet.connected]);
-
-  const handleSelectNft = (uri: string) => {
-    const nfts = nftInfos.filter((nft: { uri: string }) => nft.uri === uri);
-    const data = selectData.find((nft: { uri: string }) => nft.uri === uri);
-    console.log(nfts);
-    setSelectedNfts(nfts || []);
-    setSelectedData(data || null);
-  };
-
-  const sendSignedTransaction = async (
-    connection: Connection,
-    transaction: Transaction,
-    wallet: any
-  ) => {
-    try {
-      if (!wallet.publicKey) throw new Error("Wallet not connected.");
-
-      // Sign the transaction with the wallet
-      transaction.feePayer = wallet.publicKey;
-      transaction.recentBlockhash = (
-        await connection.getLatestBlockhash()
-      ).blockhash;
-
-      const signedTransaction = await wallet.signTransaction(transaction);
-
-      // Send the transaction
-      const signature = await connection.sendRawTransaction(
-        signedTransaction.serialize(),
-        {
-          skipPreflight: false,
-          preflightCommitment: "confirmed",
-        }
-      );
-
-      // Confirm the transaction
-      await connection.confirmTransaction(signature, "confirmed");
-
-      // console.log('Transaction successful! Signature:', signature);
-      return signature;
-    } catch (error) {
-      // console.error('Transaction failed:', error);
-      throw error;
-    }
-  };
-
   const countNFTsByURI = (nftData: any[]): ProcessedData[] => {
     const uriCountMap = new Map<string, { name: string; count: number }>();
 
-    // Count occurrences of each unique URI
     nftData.forEach((item) => {
-      if (uriCountMap.has(item.uri)) {
-        // Increment count if URI exists
-        uriCountMap.get(item.uri)!.count += 1;
+      if (uriCountMap.has(item.content.json_uri)) {
+        uriCountMap.get(item.content.json_uri)!.count += 1;
       } else {
-        // Initialize entry with count = 1
-        uriCountMap.set(item.uri, { name: item.name, count: 1 });
+        uriCountMap.set(item.content.json_uri, {
+          name: item.content.metadata.name,
+          count: 1,
+        });
       }
     });
 
@@ -147,23 +102,34 @@ export default function NFTBulkSender() {
     }));
   };
 
+  useEffect(() => {
+    if (wallet.connected) {
+      fetchCNFT(); // Fetch CNFTs when wallet is connected
+    }
+  }, [wallet, refreshCounter]);
+
+  const handleSelectNft = (uri: string) => {
+    const nfts = nftInfos.filter((item) => item.content.json_uri === uri);
+    const data = selectData.find((nft: { uri: string }) => nft.uri === uri);
+    setSelectedNfts(nfts || []);
+    setSelectedData(data || null);
+  };
+
   const sendNFTs = async () => {
     if (!wallet.connected || !wallet.publicKey) {
       showToast("ウォレットを接続してください。", "error");
       return;
     }
-
     if (!selectedNfts || !recipientInfo) {
       showToast("NFTを選択し、受取人情報を入力してください。", "error");
       return;
     }
-
     const recipients = parseRecipientInfo(recipientInfo);
     const totalCount = recipients.reduce(
-      (sum, recipient) => sum + recipient.count,
+      (sum, recipient) => sum + Number(recipient.count),
       0
     );
-    if (totalCount > selectedData?.numbers!) {
+    if (totalCount > Number(selectedData?.numbers!)) {
       showToast(
         "NFTの上限を超えています。再度ご確認をお願いいたします。",
         "error"
@@ -171,82 +137,29 @@ export default function NFTBulkSender() {
       return;
     }
     setIsLoading(true);
-
     try {
-      let nftIndex = 0; // Track which NFT we're sending
-
+      let nftIndex = 0;
       for (const { address, count } of recipients) {
-        const recipientPublicKey = new PublicKey(address);
-
-        // Slice out 'count' number of NFTs for this recipient
+        const recipientPublicKey = publicKey(address);
         const nftsToSend = selectedNfts.slice(nftIndex, nftIndex + count);
-        nftIndex += count; // Move index forward
-
+        nftIndex += count;
         for (const nft of nftsToSend) {
-          const mintPublicKey = new PublicKey(nft.mintAddress);
-          const requiredLamports = 0.001 * LAMPORTS_PER_SOL; // Convert 0.001 SOL to lamports
-
-          const senderTokenAccount = await getAssociatedTokenAddress(
-            mintPublicKey,
-            wallet.publicKey,
-            false,
-            TOKEN_PROGRAM_ID,
-            ASSOCIATED_TOKEN_PROGRAM_ID
-          );
-
-          const recipientTokenAccount = await getAssociatedTokenAddress(
-            mintPublicKey,
-            recipientPublicKey,
-            false,
-            TOKEN_PROGRAM_ID,
-            ASSOCIATED_TOKEN_PROGRAM_ID
-          );
-
-          const solTransfer = SystemProgram.transfer({
-            fromPubkey: wallet.publicKey!,
-            toPubkey: new PublicKey(`${process.env.NEXT_PUBLIC_ADMIN_WALLET}`),
-            lamports: requiredLamports,
+          const assetWithProof = await getAssetWithProof(umi as any, nft.id, {
+            truncateCanopy: true,
           });
-
-          const transaction = new Transaction();
-
-          try {
-            await getAccount(connection, recipientTokenAccount);
-          } catch (error) {
-            transaction.add(
-              createAssociatedTokenAccountInstruction(
-                wallet.publicKey,
-                recipientTokenAccount,
-                recipientPublicKey,
-                mintPublicKey
-              )
-            );
-          }
-
-          transaction.add(
-            createTransferInstruction(
-              senderTokenAccount,
-              recipientTokenAccount,
-              wallet.publicKey,
-              1
-            )
-          );
-
-          transaction.add(solTransfer);
-
-          const { blockhash, lastValidBlockHeight } =
-            await connection.getLatestBlockhash();
-          transaction.recentBlockhash = blockhash;
-          transaction.feePayer = wallet.publicKey;
-
-          const signature = await sendSignedTransaction(
-            connection,
-            transaction,
-            wallet
-          );
-
-          showToast(`送信成功: ${signature}`, "success");
+          await transfer(umi, {
+            ...assetWithProof,
+            leafOwner: umi.identity.publicKey,
+            newLeafOwner: recipientPublicKey,
+          }).sendAndConfirm(umi);
+          showToast(`送信成功`, "success");
+          setRefreshCounter((prev) => prev + 1);
         }
+        setTimeout(() => {
+          if (selectedData?.uri) {
+            handleSelectNft(selectedData.uri);
+          }
+        }, 2000);
       }
     } catch (error) {
       showToast("転送に失敗しました。", "error");
@@ -262,7 +175,9 @@ export default function NFTBulkSender() {
       transition={{ duration: 0.5 }}
       className="container px-4 py-8 mx-auto bg-[#fff] backdrop-blur-sm "
     >
-      <h1 className="mb-4 text-xl sm:text-2xl font-bold text-black">エアドロップ</h1>
+      <h1 className="mb-4 text-xl sm:text-2xl font-bold text-black">
+        エアドロップ
+      </h1>
       <div className="space-y-4">
         <div>
           <Label htmlFor="nftSelect">NFT選択</Label>

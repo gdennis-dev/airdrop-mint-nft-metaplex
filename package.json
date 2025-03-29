@@ -9,7 +9,13 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@metaplex-foundation/digital-asset-standard-api": "^1.0.6",
     "@metaplex-foundation/js": "^0.20.1",
+    "@metaplex-foundation/mpl-bubblegum": "^4.3.1",
+    "@metaplex-foundation/mpl-toolbox": "^0.10.0",
+    "@metaplex-foundation/umi": "^1.1.1",
+    "@metaplex-foundation/umi-bundle-defaults": "^1.1.1",
+    "@metaplex-foundation/umi-signer-wallet-adapters": "^1.1.1",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-dialog": "^1.0.4",
     "@radix-ui/react-label": "^2.1.0",

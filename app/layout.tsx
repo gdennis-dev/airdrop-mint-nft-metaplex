@@ -18,31 +18,17 @@ export const rubik = Rubik({
   variable: "--Rubik",
 });
 
-export const metadata: Metadata = {
-  title: "ソラナ",
-  icons: {
-    icon: "/favicon.png",
-    shortcut: "/favicon.png",
-    apple: "/favicon.png",
-  },
-  description:
-    "NFTを作成してエアドロップするには",
-};
-
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ja" suppressHydrationWarning>    
+    <html lang="ja" suppressHydrationWarning>
       <body
         className={`${montserrat.variable} ${rubik.variable} font-rubik relative`}
       >
-        <Provider
-          attribute="data-theme"
-          storageKey="sol-launchpad-theme"
-        >
+        <Provider attribute="data-theme" storageKey="sol-launchpad-theme">
           <Header />
           {children}
           <Loader />

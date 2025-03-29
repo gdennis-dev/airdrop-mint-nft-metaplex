@@ -1,3 +1,4 @@
+"use client";
 import { FC, ReactNode, useCallback, useMemo } from "react";
 import { WalletAdapterNetwork, WalletError } from "@solana/wallet-adapter-base";
 import {
@@ -13,10 +14,9 @@ import {
 import { useToast } from "@hooks/use-toast";
 
 const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
-  const network = WalletAdapterNetwork.Mainnet; // Mainnet
-  const endpoint = `https://solana-mainnet.rpc.extrnode.com/${process.env.NEXT_PUBLIC_EXTRNODE_API}`;
+  const network = WalletAdapterNetwork.Devnet; // Mainnet
+  const endpoint = `https://api.devnet.solana.com`;
   const { showToast } = useToast();
-
   const wallets = useMemo(
     () => [
       new PhantomWalletAdapter(),
@@ -35,7 +35,6 @@ const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
   }, []);
 
   return (
-    // TODO: updates needed for updating and referencing endpoint: wallet adapter rework
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets} onError={onError} autoConnect>
         <ReactUIWalletModalProvider>{children}</ReactUIWalletModalProvider>

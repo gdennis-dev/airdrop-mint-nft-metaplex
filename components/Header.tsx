@@ -36,8 +36,8 @@ const Header = (props: Props) => {
             >
               エアドロップ
             </Link>
-          </nav> 
-          <CustomWalletMultiButton className="bg-black" /> 
+          </nav>
+          <CustomWalletMultiButton className="bg-black" />
 
           <Sheet open={showSidebar} onOpenChange={setShowSidebar}>
             <SheetTrigger asChild>
@@ -68,7 +68,7 @@ const Header = (props: Props) => {
                   href="/airdrop"
                 >
                   <div className="text-[0.8em]">エアドロップ</div>
-                </Link> 
+                </Link>
               </nav>
             </SheetContent>
           </Sheet>
