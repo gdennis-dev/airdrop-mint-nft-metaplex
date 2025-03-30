@@ -88,7 +88,6 @@ export default function NFTCreator() {
       );
       const imageUrl = `https://gateway.pinata.cloud/ipfs/${imageRes.data.IpfsHash}`;
 
-      // example test
       const metadata = {
         name: nftName,
         description,
