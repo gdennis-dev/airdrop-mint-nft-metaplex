@@ -10,7 +10,7 @@ body {
 }
 
 html {
-  position: relative; 
+  position: relative;
 }
 
 * {
@@ -27,26 +27,26 @@ html {
   width: 16rem;
   height: auto;
   max-width: 200px;
-  @media screen and (max-width:490px){
+  @media screen and (max-width: 490px) {
     width: 8rem;
   }
-  @media screen and (max-width:375px){
+  @media screen and (max-width: 375px) {
     width: 7rem;
     max-width: 116px;
   }
 }
- 
-.wallet-adapter-button {   
-  @media screen and (max-width:375px){
-    padding: 4px 8px!important;
-    font-size: 14px;
+
+.wallet-adapter-button {
+  @media screen and (max-width: 375px) {
+    padding: 4px 8px !important;
+    font-size: 12px;
   }
-} 
+}
 
 .wallet-adapter-button-start-icon {
-  @media screen and (max-width:375px) {
+  @media screen and (max-width: 375px) {
     margin-right: -2px;
-  }  
+  }
 }
 
 @layer base {
