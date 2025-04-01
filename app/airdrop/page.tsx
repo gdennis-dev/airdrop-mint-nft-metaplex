@@ -185,7 +185,7 @@ export default function NFTBulkSender() {
             id="nftSelect"
             value={selectedData?.uri || ""}
             onChange={(e) => handleSelectNft(e.target.value)}
-            className="border p-2 rounded w-full bg-[#fff] border-[#000]"
+            className="border p-2 rounded w-full bg-[#fff] border-[#000] focus:border-none focus:ring-2 focus:ring-blue-400"
           >
             <option value="" disabled>
               NFTを選択してください
@@ -204,7 +204,7 @@ export default function NFTBulkSender() {
             value={recipientInfo}
             onChange={(e) => setRecipientInfo(e.target.value)}
             placeholder="受取人のSolアドレスと、送る数量を入力（1行ごとにアドレス, 数量で記載してください）"
-            className="mt-1 w-full"
+            className="mt-1 w-full focus:border-none focus:ring-2 focus:ring-blue-400"
             rows={5}
           />
         </div>

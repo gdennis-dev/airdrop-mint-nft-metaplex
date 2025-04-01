@@ -199,7 +199,7 @@ export default function NFTCreator() {
             value={nftName}
             onChange={(e) => setNftName(e.target.value)}
             placeholder="NFT名を入力してください。"
-            className="mt-1"
+            className="mt-1 focus:border-none focus:ring-2 focus:ring-blue-400"
             required
           />
         </div>
@@ -210,7 +210,7 @@ export default function NFTCreator() {
             value={nftSymbol}
             onChange={(e) => setNftSymbol(e.target.value)}
             placeholder="シンボルを入力してください。"
-            className="mt-1"
+            className="mt-1 focus:border-none focus:ring-2 focus:ring-blue-400"
             maxLength={10}
             required
           />
@@ -222,7 +222,7 @@ export default function NFTCreator() {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="NFTについて説明してください。"
-            className="mt-1"
+            className="mt-1 focus:border-none focus:ring-2 focus:ring-blue-400"
             required
           />
         </div>
@@ -233,7 +233,7 @@ export default function NFTCreator() {
             type="file"
             onChange={handleImageUpload}
             accept="image/*"
-            className="mt-1"
+            className="mt-1 focus:border-none focus:ring-2 focus:ring-blue-400"
             required
           />
         </div>
@@ -247,13 +247,13 @@ export default function NFTCreator() {
               setNftNumber(e.target.value ? Number(e.target.value) : "")
             }
             placeholder="NFT数を入力します。"
-            className="mt-1 w-40"
+            className="mt-1 w-70 focus:border-none focus:ring-2 focus:ring-blue-400"
           />
         </div>
         <div>
           <Label htmlFor="attributes">属性</Label>
           {attributes.map((attr, index) => (
-            <div key={index} className="flex gap-2 mb-3 flex-wrap">
+            <div key={index} className="flex gap-2 mb-3 mt-1 flex-wrap">
               {/* Trait Type Input */}
               <Input
                 type="text"
@@ -262,7 +262,7 @@ export default function NFTCreator() {
                   handleAttributesChange(index, "trait_type", e.target.value)
                 }
                 placeholder="特性タイプ"
-                className="w-80 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-75 focus:border-none focus:ring-2 focus:ring-blue-400"
               />
 
               {/* Value Input */}
@@ -273,7 +273,7 @@ export default function NFTCreator() {
                   handleAttributesChange(index, "value", e.target.value)
                 }
                 placeholder="価値"
-                className="w-80 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-75 focus:border-none focus:ring-2 focus:ring-blue-400"
               />
 
               {/* Remove Button (Only if there's more than one input) */}
