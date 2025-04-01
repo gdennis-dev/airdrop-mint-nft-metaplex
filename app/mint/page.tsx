@@ -157,6 +157,7 @@ export default function NFTCreator() {
       attributes
     );
 
+    // example test
     for (let i = 0; i < Number(nftNumber); i++) {
       await mintV1(umi, {
         leafOwner: umi.identity.publicKey,
