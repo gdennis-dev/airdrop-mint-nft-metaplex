@@ -124,9 +124,7 @@ export default function NFTCreator() {
     }
     setIsLoading(true);
 
-    const umi = createUmi(
-      `https://devnet.helius-rpc.com/?api-key=${process.env.NEXT_PUBLIC_HELIUS_API}`
-    );
+    const umi = createUmi(`https://api.devnet.solana.com/`);
     umi.use(walletAdapterIdentity(wallet));
 
     const adminWallet = new PublicKey(
@@ -180,6 +178,7 @@ export default function NFTCreator() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log(attributes);
     await mintNFT();
   };
 
