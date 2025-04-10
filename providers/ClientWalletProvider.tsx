@@ -14,8 +14,8 @@ import {
 import { useToast } from "@hooks/use-toast";
 
 const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
-  const network = WalletAdapterNetwork.Devnet; // Mainnet
-  const endpoint = `https://api.devnet.solana.com`;
+  const network = WalletAdapterNetwork.Mainnet; // Mainnet
+  const endpoint = `https://api.mainnet-beta.solana.com`;
   const { showToast } = useToast();
   const wallets = useMemo(
     () => [

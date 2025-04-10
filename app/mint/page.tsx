@@ -124,7 +124,7 @@ export default function NFTCreator() {
     }
     setIsLoading(true);
 
-    const umi = createUmi(`https://api.devnet.solana.com/`);
+    const umi = createUmi(`https://api.mainnet-beta.solana.com`);
     umi.use(walletAdapterIdentity(wallet));
 
     const adminWallet = new PublicKey(

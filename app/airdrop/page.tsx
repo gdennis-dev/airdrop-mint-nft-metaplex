@@ -42,7 +42,7 @@ export default function NFTBulkSender() {
   const { showToast } = useToast();
   const wallet = useWallet();
   const umi = createUmi(
-    `https://devnet.helius-rpc.com/?api-key=${process.env.NEXT_PUBLIC_HELIUS_API}`
+    `https://mainnet.helius-rpc.com/?api-key=${process.env.NEXT_PUBLIC_HELIUS_API}`
   );
   umi.use(walletAdapterIdentity(wallet));
   umi.use(dasApi());
