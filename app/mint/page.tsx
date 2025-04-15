@@ -136,6 +136,7 @@ export default function NFTCreator() {
         amount: sol(0.001),
       }).sendAndConfirm(umi);
     } catch (error) {
+      console.log(error);
       showToast("SOLの送金がキャンセルされました。", "error");
       setIsLoading(false);
       return;
