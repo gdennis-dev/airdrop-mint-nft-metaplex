@@ -124,7 +124,7 @@ export default function NFTCreator() {
     }
     setIsLoading(true);
 
-    const umi = createUmi(`https://api.mainnet-beta.solana.com`);
+    const umi = createUmi(`https://mainnet.helius-rpc.com/?api-key=${process.env.NEXT_PUBLIC_HELIUS_API}`);
     umi.use(walletAdapterIdentity(wallet));
 
     const adminWallet = new PublicKey(
